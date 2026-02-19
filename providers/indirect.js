@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
+import { solveCaptcha } from '../utils/captcha.js';
 
 /**
  * providers/indirect.js
@@ -45,6 +46,14 @@ export async function runProviderTask({ task, url, args = {} }) {
   }
 
   try {
+    // optional captcha simulation: if args.simulateCaptcha is true we try to solve
+    if (args.simulateCaptcha) {
+      const solved = await solveCaptcha(null, { simulate: true });
+      fs.appendFileSync(logPath, `[${new Date().toISOString()}] captcha_solved=${solved}\n`, 'utf8');
+      // attach solved to result for test visibility
+      result.captcha = solved;
+    }
+
     const { page, browser, persona } = await launchHumanBrowser(args);
 
     // navigate to target and do lightweight human-like interactions
