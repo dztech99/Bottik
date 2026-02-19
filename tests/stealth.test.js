@@ -41,6 +41,15 @@ if (canRunBrowserTest) {
     const connType = await page.evaluate(() => (navigator.connection && navigator.connection.effectiveType) || null);
     const devicesLen = await page.evaluate(() => navigator.mediaDevices.enumerateDevices().then(d => d.length));
     const screenW = await page.evaluate(() => screen.width);
+    const canvasData = await page.evaluate(() => {
+      const c = document.createElement('canvas');
+      c.width = 300; c.height = 150;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ff0000'; ctx.fillRect(0,0,10,10);
+      return c.toDataURL().slice(0,30);
+    });
+    const fnToString = await page.evaluate(() => Function.prototype.toString.call(Array.prototype.push));
+    const fontsAvailable = await page.evaluate(() => typeof document.fonts !== 'undefined');
 
     expect(webdriver).toBe(false);
     expect(Array.isArray(languages)).toBe(true);
@@ -51,10 +60,12 @@ if (canRunBrowserTest) {
     expect(connType).toBeTruthy();
     expect(devicesLen).toBe(0);
     expect(screenW).toBe(persona.viewport.width);
+    expect(typeof canvasData).toBe('string');
+    expect(fnToString).toContain('native code');
+    expect(fontsAvailable).toBe(true);
 
     await browser.close();
   });
-
   test('launchHumanBrowser applies session jitter to userAgent when enabled', async () => {
     // ensure jitter changes UA deterministically in implementation
     const personaId = 'desktop_chrome_1';
