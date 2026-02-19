@@ -58,7 +58,9 @@ async function main() {
     const out = await startOrchestratorMode(args);
     console.log('Orchestrator flow result:', out);
   } else if (args.dashboard) {
-    const server = await startDashboardMode({ port: args.port || 3001 });
+    // allow explicit 0 (ephemeral) port — treat only undefined as missing
+    const port = (typeof args.port !== 'undefined') ? Number(args.port) : 3001;
+    const server = await startDashboardMode({ port });
     console.log(`Dashboard listening at http://${server.host}:${server.port}/`);
     // keep process alive while dashboard runs
     await new Promise(() => {});
