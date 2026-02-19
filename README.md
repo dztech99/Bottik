@@ -82,3 +82,35 @@ Notes
 - The `providers/indirect.js` file contains a Playwright-compatible provider implementation (safe reimplementation). If you need an exact port of the original provider, provide the original source and I will port it into the adapter.
 - Tests include CI-friendly `dryRun` paths so Playwright browsers are not required for all tests.
 
+---
+
+## Dashboard & Trace Persistence
+
+- Live trace dashboard (Web UI, WebSocket, REST API)
+- Run flows from dashboard UI
+- Traces are stored in `.bottok_traces.sqlite` (SQLite, default; override with `--persistFile`)
+- Remote/local worker adapters
+
+### Systemd Service Example
+
+See `bottok-dashboard.service` for a ready-to-use systemd unit:
+
+1. Copy to `/etc/systemd/system/`
+2. `sudo systemctl daemon-reload`
+3. `sudo systemctl enable --now bottok-dashboard`
+
+### Testing & CI
+
+- Run all tests: `npm test`
+- Lint: `npm run lint`
+- CI: see `.github/workflows/ci.yml`
+
+### Configuration
+- Dashboard port: `--port` (default 30050)
+- Trace DB: `.bottok_traces.sqlite` (override with `--persistFile`)
+- Worker URL: `--workerUrl` for remote execution
+
+---
+
+MIT License
+

@@ -45,7 +45,19 @@ function jitterFirefoxUA(ua) {
 }
 
 export async function launchHumanBrowser(args = {}) {
-  const persona = choosePersona(args.persona);
+  // support rotate-fingerprint: persistent round-robin selection across runs
+  let persona = choosePersona(args.persona);
+  if (args.rotateFingerprint) {
+    try {
+      const { default: FingerprintRotator } = await import('../utils/fingerprint-rotator.js');
+      const rot = new FingerprintRotator(personas);
+      const p = rot.next();
+      if (p) persona = p;
+    } catch (e) {
+      // fallback to default chooser
+    }
+  }
+
   // clone so defaults remain unchanged
   const sessionPersona = { ...persona };
 

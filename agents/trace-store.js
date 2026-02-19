@@ -62,5 +62,24 @@ class TraceStore extends EventEmitter {
   }
 }
 
+// append-friendly helper for cross-process trace persistence
+export function appendTraceToFile(filePath, record, limit = 200) {
+  try {
+    const fp = String(filePath);
+    let arr = [];
+    if (fs.existsSync(fp)) {
+      const raw = fs.readFileSync(fp, 'utf8');
+      try { arr = JSON.parse(raw || '[]'); } catch { arr = []; }
+      if (!Array.isArray(arr)) arr = [];
+    }
+    arr.unshift(record);
+    if (arr.length > limit) arr.length = limit;
+    fs.writeFileSync(fp, JSON.stringify(arr, null, 2), 'utf8');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 const store = new TraceStore();
 export default store;

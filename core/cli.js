@@ -1,5 +1,4 @@
 import minimist from 'minimist';
-import config from '../config/default.js';
 import { startIndirectMode } from '../providers/indirect.js';
 import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
 import { startAgentMode } from '../agents/tiktok-agent.js';

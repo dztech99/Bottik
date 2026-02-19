@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { launchHumanBrowser } from '../human/simulator.js';
 import { startAgentMode } from '../agents/tiktok-agent.js';
 
-import { execSync } from 'child_process';
 
 import fs from 'fs';
 import os from 'os';

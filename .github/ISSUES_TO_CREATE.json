@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Port original Bottok provider into providers/indirect.js",
+    "body": "Port and adapt the original `bottok.js` provider logic (Puppeteer/captcha/cloudflare handling) into `providers/indirect.js`. Ensure licensing and attribution are correct, add tests, and keep a `dryRun` fallback.",
+    "labels": ["enhancement", "provider"]
+  },
+  {
+    "title": "Playwright stealth — fingerprint rotation & fingerprint-suite",
+    "body": "Integrate fingerprint rotation and optional `playwright-extra` compatibility layer. Add `--fingerprint` CLI flag, build rotation schedules, and add CI tests to validate variability.",
+    "labels": ["enhancement", "stealth"]
+  },
+  {
+    "title": "Proxy health-check + external provider hooks",
+    "body": "Implement proxy health checks, integration with external proxy providers (APIs), runtime metrics and CLI options to set rotator strategy.",
+    "labels": ["enhancement", "infrastructure"]
+  },
+  {
+    "title": "Captcha solver plugins (Tesseract + external)",
+    "body": "Add plugin interface for external captcha solvers and optional cloud connector; add retry/backoff and a test harness for captcha resolution.",
+    "labels": ["enhancement", "captcha"]
+  },
+  {
+    "title": "LangGraph full integration + example flows",
+    "body": "Expand the LangGraph agent to run multi-step flows, include example flows in `examples/`, and add integration tests that run against a local Ollama instance.",
+    "labels": ["enhancement", "agent"]
+  },
+  {
+    "title": "CI matrix for Ollama integration",
+    "body": "Add optional CI job(s) to run Ollama integration tests when a secret `OLLAMA_URL` is provided. Ensure tests are gated and won't run otherwise.",
+    "labels": ["ci", "integration"]
+  },
+  {
+    "title": "Docs: runtime stealth presets & per-shim toggles",
+    "body": "Expand README with best-practices and security advice for `--stealth` and `--stealth-disable` usage; add examples and recommended presets.",
+    "labels": ["documentation"]
+  }
+]

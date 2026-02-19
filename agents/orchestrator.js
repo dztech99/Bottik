@@ -1,11 +1,13 @@
 import fs from 'fs';
 import path from 'path';
+import { openTraceDB, insertTrace } from './trace-sqlite.js';
 import EventEmitter from 'events';
 import { runLangGraphFlow } from './langgraph.js';
 import { analyzerWorker, webScraperWorker, llmWorker, validatorWorker, simulatorWorker, reporterWorker } from './langgraph-executors.js';
 import ProxyRotator, { createRotatorFromFile } from '../utils/proxy-rotator.js';
-import FingerprintRotator, { createRotatorFromPersonas } from '../utils/fingerprint-rotator.js';
+import { createRotatorFromPersonas } from '../utils/fingerprint-rotator.js';
 import personas from '../config/personas.js';
+import { createWorkerClient } from './worker-client.js';
 
 // Lightweight in-process orchestrator (pipeline topology)
 export class Orchestrator {
@@ -16,6 +18,7 @@ export class Orchestrator {
     this.fingerprintRotator = createRotatorFromPersonas(personas, { stateFile: opts.stateFile });
     this._running = false;
     this._proxyInterval = null;
+    this.workerClient = null; // optional worker client (remote or local adapter)
   }
 
   async _startProxyMonitor(list = []) {
@@ -38,31 +41,37 @@ export class Orchestrator {
     const trace = { plan: planObj.plan || nodes.map(n => n.id), nodes: [], summary: planObj.summary || '' };
 
     for (const node of nodes) {
-      // simulate delegation: call role-specific worker (could be remote agent)
+      // delegate to configured worker client when available, otherwise call in-process workers
       try {
-        if (node.role === 'analyzer') {
-          node.result = await analyzerWorker(prompt, node, opts);
-
-        } else if (node.role === 'web-scraper') {
-          node.result = await webScraperWorker(node, opts);
-
-        } else if (node.role === 'llm') {
-          // orchestrator will use mock/dry-run LLM by default if opts.llm is falsy
-          node.result = await llmWorker(node, prompt, opts);
-
-        } else if (node.role === 'validator') {
-          node.result = await validatorWorker(node, nodes, prompt, opts);
-
-        } else if (node.role === 'simulator') {
-          // pick rotated persona if requested
-          if (opts.rotateFingerprint) opts.persona = this.fingerprintRotator.next();
-          node.result = await simulatorWorker(node, opts);
-
-        } else if (node.role === 'reporter') {
-          node.result = await reporterWorker(node, nodes, prompt, opts);
-
+        const useClient = this.workerClient && typeof this.workerClient.execute === 'function';
+        if (useClient) {
+          const res = await this.workerClient.execute({ role: node.role, node, prompt, opts });
+          node.result = res;
         } else {
-          node.result = 'noop';
+          if (node.role === 'analyzer') {
+            node.result = await analyzerWorker(prompt, node, opts);
+
+          } else if (node.role === 'web-scraper') {
+            node.result = await webScraperWorker(node, opts);
+
+          } else if (node.role === 'llm') {
+            // orchestrator will use mock/dry-run LLM by default if opts.llm is falsy
+            node.result = await llmWorker(node, prompt, opts);
+
+          } else if (node.role === 'validator') {
+            node.result = await validatorWorker(node, nodes, prompt, opts);
+
+          } else if (node.role === 'simulator') {
+            // pick rotated persona if requested
+            if (opts.rotateFingerprint) opts.persona = this.fingerprintRotator.next();
+            node.result = await simulatorWorker(node, opts);
+
+          } else if (node.role === 'reporter') {
+            node.result = await reporterWorker(node, nodes, prompt, opts);
+
+          } else {
+            node.result = 'noop';
+          }
         }
 
         trace.nodes.push({ id: node.id, role: node.role, result: node.result });
@@ -88,6 +97,9 @@ export async function startOrchestratorMode(args = {}) {
   const opts = { llm: args.llm || 'mock', model: args.model, dryRun: !!args.dryRun, extended: !!(args.extended || args['flow-extended'] || args.flowExtended), providerDryRun: !!args.providerDryRun, require: args.require, target: args.target, selector: args.selector, rotateFingerprint: !!args.rotateFingerprint };
 
   const orchestrator = new Orchestrator({ stateFile: args.stateFile });
+  // configure worker client (remote URL via --worker-url or env BOTTOK_WORKER_URL)
+  const workerUrl = args.workerUrl || process.env.BOTTOK_WORKER_URL || null;
+  orchestrator.workerClient = createWorkerClient({ url: workerUrl });
 
   // start proxy monitor if proxies provided
   if (args.proxies) {
@@ -98,7 +110,16 @@ export async function startOrchestratorMode(args = {}) {
   try {
     const res = await orchestrator.runPipeline(prompt, opts);
     try { fs.appendFileSync(path.resolve(process.cwd(), 'activity.log'), `[${new Date().toISOString()}] orchestrator_result ok=${res.ok} nodes=${(res.trace?.nodes||[]).length}\n`); } catch (e) {}
-    try { const store = await import('./trace-store.js'); store.default.pushTrace({ source: 'orchestrator', prompt, trace: res.trace, ok: res.ok }); } catch (e) {}
+
+    // push into SQLite for cross-process visibility
+    try {
+      const dbPath = args.persistFile || process.env.BOTTOK_TRACES_FILE || path.resolve(process.cwd(), '.bottok_traces.sqlite');
+      const db = await openTraceDB(dbPath);
+      const rec = { id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, ts: Date.now(), source: 'orchestrator', prompt, trace: res.trace, ok: res.ok };
+      await insertTrace(db, rec);
+      await db.close();
+    } catch (e) { /* ignore */ }
+
     return res;
   } finally {
     orchestrator._stopProxyMonitor();

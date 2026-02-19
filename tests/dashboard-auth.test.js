@@ -20,7 +20,7 @@ test('dashboard enforces token auth for HTTP + WebSocket', async () => {
   let wsOk = false;
   try {
     const ws = new WebSocket(`ws://${server.host}:${server.port}/live`);
-    await new Promise((res, rej) => { ws.on('open', () => { wsOk = true; res(); }); ws.on('error', () => res()); setTimeout(res, 300); });
+     await new Promise((res) => { ws.on('open', () => { wsOk = true; res(); }); ws.on('error', () => res()); setTimeout(res, 300); });
   } catch (e) { /* ignore */ }
   expect(wsOk).toBe(false);
 

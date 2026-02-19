@@ -1,0 +1,14 @@
+[Unit]
+Description=Bottok AI Trace Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=redbend
+WorkingDirectory=/home/redbend/MyLocalProjects/Bottik/Bottik
+ExecStart=/usr/bin/node core/cli.js --dashboard --port 30050
+Restart=on-failure
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

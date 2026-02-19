@@ -1,6 +1,11 @@
+// import fs from 'fs';
+  } catch (e) {}
 import http from 'http';
 import url from 'url';
+import fs from 'fs';
+import path from 'path';
 import traceStore from './trace-store.js';
+import { openTraceDB, getRecentTraces } from './trace-sqlite.js';
 
 // optional lightweight WebSocket & token auth support
 import { WebSocketServer } from 'ws';
@@ -24,8 +29,31 @@ const UI = `
 <body>
   <h2>Bottok-AI — Trace Dashboard <small>(live)</small></h2>
   <p>Live traces (SSE/WebSocket capable)</p>
+  <div style="margin-bottom:12px">
+    <label style="font-size:13px">Run a flow:</label>
+    <input id="runFlowInput" placeholder="enter flow (e.g. audit user)" style="width:60%;padding:6px;margin-left:8px;border-radius:4px;border:1px solid #333;background:#0b0b0b;color:#eee" />
+    <button id="runFlowBtn" style="margin-left:8px;padding:6px 10px;border-radius:4px;background:#1e90ff;color:#fff;border:none;">Run</button>
+    <span id="runStatus" style="margin-left:12px;color:#999"></span>
+  </div>
   <div id="list"></div>
   <script>
+    // run-flow UI
+    document.addEventListener('DOMContentLoaded', function(){
+      const btn = document.getElementById('runFlowBtn');
+      const input = document.getElementById('runFlowInput');
+      const status = document.getElementById('runStatus');
+      btn.addEventListener('click', async () => {
+        const flow = input.value || 'quick check';
+        status.innerText = 'running…';
+        try {
+          const res = await fetch('/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ flow, dryRun: true, extended: true, providerDryRun: true }) });
+          const j = await res.json();
+          status.innerText = j.ok ? 'started' : 'error';
+        } catch (e) { status.innerText = 'error'; }
+        setTimeout(()=> status.innerText = '', 1500);
+      });
+    });
+
     // live updates via WebSocket when available, fallback to polling
     (function(){
       const host = location.hostname; const port = location.port; const wsUrl = 'ws://' + host + ':' + port + '/live';
@@ -59,7 +87,8 @@ const UI = `
 `;
 
 export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = null, persistFile = null } = {}) {
-  const server = http.createServer((req, res) => {
+  const dbPath = persistFile || path.resolve(process.cwd(), '.bottok_traces.sqlite');
+  const server = http.createServer(async (req, res) => {
     const p = url.parse(req.url, true);
 
     // authentication (if token provided)
@@ -73,8 +102,38 @@ export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = n
     if (p.pathname === '/' || p.pathname === '/index.html') return html(res, UI);
     if (p.pathname === '/traces') {
       const limit = parseInt(p.query.limit || '50', 10) || 50;
-      return json(res, traceStore.getTraces({ limit }));
+      try {
+        const db = await openTraceDB(dbPath);
+        const traces = await getRecentTraces(db, limit);
+        await db.close();
+        return json(res, traces);
+      } catch (e) {
+        return json(res, { error: 'db_error', detail: String(e) }, 500);
+      }
     }
+
+    // run a flow (POST) — expects JSON { flow, llm, dryRun, extended, providerDryRun }
+    if (p.pathname === '/run' && req.method === 'POST') {
+      // auth already enforced above if token configured
+      let body = '';
+      req.on('data', chunk => {
+        body += chunk;
+      });
+      req.on('end', async () => {
+        try {
+          const payload = JSON.parse(body || '{}');
+          const { flow, llm, dryRun, extended, providerDryRun } = payload;
+          // execute orchestrator synchronously and return trace
+          const { startOrchestratorMode } = await import('./orchestrator.js');
+          const resObj = await startOrchestratorMode({ flow, llm, dryRun, extended, providerDryRun });
+          return json(res, { ok: true, result: resObj }, 200);
+        } catch (e) {
+          return json(res, { ok: false, error: String(e) }, 500);
+        }
+      });
+      return;
+    }
+
     return json(res, { error: 'not_found' }, 404);
   });
 
@@ -100,23 +159,16 @@ export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = n
   });
 
   // broadcast on new trace
-  const onPush = (rec) => {
-    const msg = JSON.stringify(rec);
-    for (const c of wss.clients) {
-      if (c.readyState === c.OPEN) c.send(msg);
-    }
-  };
-  traceStore.on('push', onPush);
+  // SQLite: no in-memory push, but could poll for new traces if needed
+  // For now, dashboard UI will poll /traces endpoint for updates
 
-  // optional persistence
-  if (persistFile) {
-    try { traceStore.saveToFile(persistFile); } catch (e) { /* ignore */ }
-  }
+  // optional persistence (default to .bottok_traces.json when not provided)
+  // SQLite: no file watcher needed
 
   return new Promise((resolve, reject) => {
     server.listen(port, host, () => {
       const assigned = server.address();
-      resolve({ server, host: assigned.address, port: assigned.port, wss, close: () => { traceStore.removeListener('push', onPush); wss.close(); server.close(); } });
+      resolve({ server, host: assigned.address, port: assigned.port, wss, close: () => { traceStore.removeListener('push', onPush); wss.close(); server.close(); if (watcher) try { watcher.close(); } catch(e){} } });
     });
     server.on('error', reject);
   });

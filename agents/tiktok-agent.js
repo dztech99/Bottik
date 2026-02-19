@@ -1,5 +1,4 @@
 import sqlite3 from 'sqlite3';
-import config from '../config/default.js';
 
 const db = new sqlite3.Database('./memory.db');
 
