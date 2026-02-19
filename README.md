@@ -19,6 +19,7 @@ Flags
 - `--proxy-file <path>`     Load proxies from a newline-separated file (format: `[user:pass@]host:port`).
 - `--visible`               Launch browser in visible (non-headless) mode.
 - `--dryRun`                Run provider in dry-run mode (no browser launched) — useful for CI/tests.
+- `--no-jitter`             Disable session fingerprint jitter (useful for deterministic runs/tests)
 
 New: Personas & Stealth
 - Several additional personas were added (desktop_firefox_windows, android_pixel_6, ipad_safari_landscape).

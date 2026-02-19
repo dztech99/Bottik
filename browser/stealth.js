@@ -25,6 +25,29 @@ export function applyPageStealth(page, persona = {}) {
     try { Object.defineProperty(navigator, 'deviceMemory', { get: () => devMem }); } catch (e) {}
   }, hw, dm);
 
+  // navigator.connection shim
+  const conn = persona.connection || { type: 'wifi', effectiveType: '4g', downlink: 10, rtt: 50 };
+  page.addInitScript((c) => {
+    try { Object.defineProperty(navigator, 'connection', { get: () => c }); } catch (e) {}
+  }, conn);
+
+  // screen property shim (based on persona.viewport)
+  const sw = (persona.viewport && persona.viewport.width) || 1280;
+  const sh = (persona.viewport && persona.viewport.height) || 720;
+  page.addInitScript((w, h) => {
+    try {
+      Object.defineProperty(window, 'screen', { get: () => ({ width: w, height: h, availWidth: w, availHeight: h, colorDepth: 24, pixelDepth: 24 }) });
+    } catch (e) {}
+  }, sw, sh);
+
+  // mediaDevices.enumerateDevices shim (returns empty list)
+  page.addInitScript(() => {
+    try {
+      if (!navigator.mediaDevices) navigator.mediaDevices = {};
+      navigator.mediaDevices.enumerateDevices = () => Promise.resolve([]);
+    } catch (e) {}
+  });
+
   // basic permissions shim (query)
   page.addInitScript(() => {
     const origQuery = navigator.permissions.query.bind(navigator.permissions);

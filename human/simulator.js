@@ -12,9 +12,60 @@ function choosePersona(id) {
   return p || personas[0];
 }
 
+// small helper: ensure UA version changes deterministically during jitter
+function _jitterNumber(n, min = 0) {
+  const delta = Math.floor(Math.random() * 3) - 1; // -1,0,1
+  return Math.max(min, n + (delta === 0 ? 1 : delta));
+}
+
+function jitterChromeUA(ua) {
+  try {
+    const m = ua.match(/Chrome\/(\d+)\.(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return ua;
+    const major = parseInt(m[1], 10);
+    const minor = _jitterNumber(parseInt(m[2], 10));
+    const build = parseInt(m[3], 10);
+    const patch = parseInt(m[4], 10);
+    return ua.replace(/Chrome\/(\d+)\.(\d+)\.(\d+)\.(\d+)/, `Chrome/${major}.${minor}.${build}.${patch}`);
+  } catch (e) {
+    return ua;
+  }
+}
+
+function jitterFirefoxUA(ua) {
+  try {
+    const m = ua.match(/Firefox\/(\d+)\.(\d+)/);
+    if (!m) return ua;
+    const major = parseInt(m[1], 10);
+    const minor = _jitterNumber(parseInt(m[2], 10));
+    return ua.replace(/Firefox\/(\d+)\.(\d+)/, `Firefox/${major}.${minor}`);
+  } catch (e) {
+    return ua;
+  }
+}
+
 export async function launchHumanBrowser(args = {}) {
   const persona = choosePersona(args.persona);
-  const ctxOpts = contextOptionsFromPersona(persona);
+  // clone so defaults remain unchanged
+  const sessionPersona = { ...persona };
+
+  const noJitter = args.noJitter || args['no-jitter'] || false;
+  if (!noJitter) {
+    if (sessionPersona.hardwareConcurrency) {
+      sessionPersona.hardwareConcurrency = Math.max(1, sessionPersona.hardwareConcurrency + (Math.floor(Math.random() * 3) - 1));
+    }
+    if (sessionPersona.deviceMemory) {
+      sessionPersona.deviceMemory = Math.max(1, sessionPersona.deviceMemory + (Math.floor(Math.random() * 3) - 1));
+    }
+
+    if (sessionPersona.userAgent && /Chrome\//.test(sessionPersona.userAgent)) {
+      sessionPersona.userAgent = jitterChromeUA(sessionPersona.userAgent);
+    } else if (sessionPersona.userAgent && /Firefox\//.test(sessionPersona.userAgent)) {
+      sessionPersona.userAgent = jitterFirefoxUA(sessionPersona.userAgent);
+    }
+  }
+
+  const ctxOpts = contextOptionsFromPersona(sessionPersona);
 
   const launchOpts = { headless: !(args.visible) };
   // proxy support if provided
@@ -27,9 +78,9 @@ export async function launchHumanBrowser(args = {}) {
   const page = await context.newPage();
 
   // apply stealth JS hooks
-  await applyPageStealth(page, persona);
+  await applyPageStealth(page, sessionPersona);
 
-  return { page, browser, persona };
+  return { page, browser, persona: sessionPersona };
 }
 
 export async function simulateHumanActions(page, args = {}) {
