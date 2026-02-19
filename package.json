@@ -1,0 +1,29 @@
+{
+  "name": "bottok-ai",
+  "version": "2.0.0",
+  "description": "Bottok-AI — Playwright + local agent (Ollama) modular fork (demo / local-only)",
+  "main": "core/cli.js",
+  "type": "module",
+  "scripts": {
+    "start": "node core/cli.js",
+    "dev": "node --watch core/cli.js",
+    "test": "npx playwright test tests --reporter=list",
+    "install-playwright": "npx playwright install --with-deps"
+  },
+  "keywords": ["bottok", "tiktok", "automation", "playwright", "agent"],
+  "author": "dztech99 / fork",
+  "license": "MIT",
+  "dependencies": {
+    "inquirer": "^9.2.7",
+    "minimist": "^1.2.8",
+    "node-fetch": "^3.3.2",
+    "jimp": "^0.22.12",
+    "tesseract.js": "^4.0.2",
+    "terminal-image": "^2.0.0",
+    "sqlite3": "^5.1.6",
+    "playwright": "^1.50.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0"
+  }
+}
