@@ -28,10 +28,11 @@ if (canRunBrowserTest) {
     const persona = { id: 'test-persona', locale: 'en-US', hardwareConcurrency: 4, deviceMemory: 4, viewport: { width: 800, height: 600 } };
     const { page, browser } = await launchHumanBrowser({ visible: false, persona });
 
-    // apply stealth and navigate to about:blank to evaluate
-    await applyPageStealth(page, persona);
+    // apply stealth and navigate to about:blank to evaluate (default full)
+    await applyPageStealth(page, persona, 'full');
     await page.goto('about:blank');
 
+    const stealthMarker = await page.evaluate(() => window.__bottok_stealth);
     const webdriver = await page.evaluate(() => navigator.webdriver);
     const languages = await page.evaluate(() => navigator.languages);
     const hc = await page.evaluate(() => navigator.hardwareConcurrency);
@@ -51,6 +52,7 @@ if (canRunBrowserTest) {
     const fnToString = await page.evaluate(() => Function.prototype.toString.call(Array.prototype.push));
     const fontsAvailable = await page.evaluate(() => typeof document.fonts !== 'undefined');
 
+    expect(stealthMarker).toBe('full');
     expect(webdriver).toBe(false);
     expect(Array.isArray(languages)).toBe(true);
     expect(hc).toBe(persona.hardwareConcurrency);
@@ -66,6 +68,27 @@ if (canRunBrowserTest) {
 
     await browser.close();
   });
+
+  test('applyPageStealth respects stealth levels (none | lite | full)', async () => {
+    const personaId = 'desktop_chrome_1';
+
+    const full = await launchHumanBrowser({ visible: false, persona: personaId, stealth: 'full' });
+    const fullMarker = await full.page.evaluate(() => window.__bottok_stealth);
+    await full.browser.close();
+
+    const lite = await launchHumanBrowser({ visible: false, persona: personaId, stealth: 'lite' });
+    const liteMarker = await lite.page.evaluate(() => window.__bottok_stealth);
+    await lite.browser.close();
+
+    const none = await launchHumanBrowser({ visible: false, persona: personaId, stealth: 'none' });
+    const noneMarker = await none.page.evaluate(() => window.__bottok_stealth);
+    await none.browser.close();
+
+    expect(fullMarker).toBe('full');
+    expect(liteMarker).toBe('lite');
+    expect(noneMarker).toBe('none');
+  });
+
   test('launchHumanBrowser applies session jitter to userAgent when enabled', async () => {
     // ensure jitter changes UA deterministically in implementation
     const personaId = 'desktop_chrome_1';
