@@ -27,6 +27,18 @@ New: Deeper stealth
 
 New: Personas & Stealth
 
+Stealth presets
+- `--stealth-preset <name>` — convenience presets that set `--stealth` and `--stealth-disable` together.
+- Available presets:
+  - `full` (default) — all shims enabled
+  - `lite` — minimal shims
+  - `privacy` — equivalent to `full` (named preset for clarity)
+  - `compat` — `lite` + disables `canvas` and `toString` for compatibility with strict sites
+
+Examples
+- Use a preset: `node core/cli.js --stealth-preset compat --dryRun`
+- Override a preset: `node core/cli.js --stealth-preset compat --stealth full --dryRun` (explicit flags take precedence)
+
 LLM integration (local)
 - `--llm ollama` will instruct the agent to use a local Ollama instance when available.
 - Use `--dryRun` in tests/CI to avoid calling the local LLM.

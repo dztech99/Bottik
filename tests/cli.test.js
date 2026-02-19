@@ -21,3 +21,18 @@ test('CLI normalization and dryRun writes activity.log', async () => {
   expect(content).toContain('stealthDisable=canvas;toString');
   fs.unlinkSync(tmpProxy);
 });
+
+test('CLI preset `compat` sets stealth + disabled shims', async () => {
+  const tmpProxy = path.join(os.tmpdir(), `proxies-${Date.now()}.txt`);
+  fs.writeFileSync(tmpProxy, '127.0.0.1:8080\n', 'utf8');
+  const logPath = path.resolve(process.cwd(), 'activity.log');
+  if (fs.existsSync(logPath)) fs.unlinkSync(logPath);
+
+  const cmd = `node core/cli.js --persona mobile_safari_iphone --proxy-file ${tmpProxy} --dryRun --stealth-preset compat`;
+  execSync(cmd, { encoding: 'utf8', stdio: 'pipe', timeout: 20000 });
+  const content = fs.readFileSync(logPath, 'utf8');
+  expect(content).toContain('stealth=lite');
+  expect(content).toContain('stealthDisable=canvas;toString');
+
+  fs.unlinkSync(tmpProxy);
+});
