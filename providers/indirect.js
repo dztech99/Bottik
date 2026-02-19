@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
+import { launchHumanBrowser, simulateHumanActions, joinAndParticipateInTikTokLive } from '../human/simulator.js';
 import { solveCaptcha } from '../utils/captcha.js';
 
 /**
@@ -54,17 +54,33 @@ export async function runProviderTask({ task, url, args = {} }) {
       result.captcha = solved;
     }
 
+    if (task === 'live') {
+      // Join and participate in TikTok Live
+      const ok = await joinAndParticipateInTikTokLive({ action: args.action || 'like', commentText: args.commentText, visible: !!args.visible, persona: args.persona, proxies: args.proxies });
+      result.ok = ok;
+      result.actions = ['joined_live', args.action || 'like'];
+      try { fs.appendFileSync(logPath, `[${new Date().toISOString()}] status=success task=live\n`, 'utf8'); } catch (err) {}
+      return result;
+    }
+
     const { page, browser, persona } = await launchHumanBrowser(args);
 
     // navigate to target and do lightweight human-like interactions
     await page.goto(url, { waitUntil: 'networkidle' }).catch(() => {});
-    await simulateHumanActions(page, args);
+
+    // Map task to TikTok action for simulation
+    let simArgs = { ...args };
+    if (["like","share","comment","react","treasure","goody"].includes(String(task).toLowerCase())) {
+      simArgs.action = String(task).toLowerCase();
+      if (task === 'comment' && !simArgs.commentText) simArgs.commentText = 'Nice video!';
+    }
+    await simulateHumanActions(page, simArgs);
 
     await page.close();
     await browser.close();
 
     result.ok = true;
-    result.actions = ['navigated', 'simulated'];
+    result.actions = ['navigated', 'simulated', simArgs.action || 'generic'];
     result.persona = result.persona || (persona && (persona.id || persona));
 
     try {

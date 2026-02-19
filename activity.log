@@ -1,11 +1,11 @@
-[2026-02-19T07:22:04.830Z] task=test url=https://example.com persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T07:22:04.946Z] task=simulate url=inline:<html><body><h1 class="hero">Hello CSS</h1></body></html> persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T07:22:04.958Z] task=Up Views url=https://www.tiktok.com/ persona=mobile_safari_iphone stealth=lite stealthDisable=canvas;toString dryRun=true
-[2026-02-19T07:22:04.990Z] task=simulate url=inline:<html><body><a class="link" href="/go">Go</a></body></html> persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T07:22:05.035Z] task=simulate url=inline:{"users":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]} persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T07:22:10.416Z] status=success task=simulate
-[2026-02-19T07:22:10.416Z] langgraph_result ok=true nodes=4
-[2026-02-19T07:22:10.454Z] langgraph_start prompt=analyze X llm=ollama dryRun=true
-[2026-02-19T07:22:10.461Z] task=simulate url=about:blank persona=- stealth=full stealthDisable= dryRun=false
-[2026-02-19T07:22:21.680Z] status=success task=simulate
-[2026-02-19T07:22:21.680Z] langgraph_result ok=true nodes=4
+[2026-02-19T09:54:05.982Z] task=test url=https://example.com persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T09:54:08.129Z] status=success task=simulate
+[2026-02-19T09:54:08.162Z] langgraph_result ok=true nodes=4
+[2026-02-19T09:54:08.248Z] langgraph_start prompt=analyze X llm=ollama dryRun=true
+[2026-02-19T09:54:08.330Z] task=simulate url=about:blank persona=- stealth=full stealthDisable= dryRun=false
+[2026-02-19T09:54:11.921Z] task=simulate url=inline:<html><body><h1 class="hero">Hello CSS</h1></body></html> persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T09:54:11.943Z] task=simulate url=inline:<html><body><a class="link" href="/go">Go</a></body></html> persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T09:54:11.992Z] task=simulate url=inline:{"users":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]} persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T09:54:12.051Z] task=Up Views url=https://www.tiktok.com/ persona=mobile_safari_iphone stealth=lite stealthDisable=canvas;toString dryRun=true
+[2026-02-19T09:54:19.200Z] status=success task=simulate
+[2026-02-19T09:54:19.201Z] langgraph_result ok=true nodes=4

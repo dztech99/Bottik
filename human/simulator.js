@@ -1,3 +1,44 @@
+// Search for a TikTok Live, join, and participate (like/comment/react)
+export async function joinAndParticipateInTikTokLive({ action = 'like', commentText = 'Nice live!', visible = false, persona = null, proxies = null } = {}) {
+  const { page, browser } = await launchHumanBrowser({ visible, persona, proxies });
+  try {
+    // Go to TikTok Live page
+    await page.goto('https://www.tiktok.com/live', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(3000);
+
+    // Find a live video link
+    const liveLinks = await page.$$('a[href*="/live/"]');
+    if (!liveLinks.length) throw new Error('No live streams found');
+    await liveLinks[0].click();
+    await page.waitForTimeout(5000);
+
+    // Participate in the live
+    if (action === 'like') {
+      const likeBtn = await page.$('button[aria-label*="Like"], .like-btn, .icon-like');
+      if (likeBtn) await likeBtn.click().catch(() => {});
+    } else if (action === 'comment') {
+      const commentInput = await page.$('textarea[placeholder*="Comment"], input[placeholder*="Comment"], .comment-input');
+      if (commentInput) {
+        await commentInput.type(commentText);
+        const submitBtn = await page.$('button[type="submit"], .submit-btn, .send-btn');
+        if (submitBtn) await submitBtn.click().catch(() => {});
+      }
+    } else if (action === 'react') {
+      const reactBtn = await page.$('button[aria-label*="React"], .react-btn, .icon-react');
+      if (reactBtn) await reactBtn.click().catch(() => {});
+    }
+
+    await page.waitForTimeout(2000);
+    console.log(`✅ Participated in TikTok Live with action: ${action}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Error in joinAndParticipateInTikTokLive:', err);
+    return false;
+  } finally {
+    await page.close();
+    await browser.close();
+  }
+}
 import { chromium } from 'playwright';
 import config from '../config/default.js';
 import personas from '../config/personas.js';
@@ -104,6 +145,42 @@ export async function simulateHumanActions(page, args = {}) {
     const scrollBy = rand(300, 1000);
     await page.mouse.wheel(0, scrollBy);
     await page.waitForTimeout(rand(800, 3000));
+  }
+
+  // TikTok-specific actions
+  if (args.action === 'like') {
+    // Simulate like button click
+    const likeBtn = await page.$('button[aria-label*="Like"], .like-btn, .icon-like');
+    if (likeBtn) await likeBtn.click().catch(() => {});
+  }
+  if (args.action === 'share') {
+    // Simulate share button click
+    const shareBtn = await page.$('button[aria-label*="Share"], .share-btn, .icon-share');
+    if (shareBtn) await shareBtn.click().catch(() => {});
+  }
+  if (args.action === 'comment') {
+    // Simulate comment input and submit
+    const commentInput = await page.$('textarea[placeholder*="Comment"], input[placeholder*="Comment"], .comment-input');
+    if (commentInput) {
+      await commentInput.type(args.commentText || 'Nice video!');
+      const submitBtn = await page.$('button[type="submit"], .submit-btn, .send-btn');
+      if (submitBtn) await submitBtn.click().catch(() => {});
+    }
+  }
+  if (args.action === 'react') {
+    // Simulate reaction (emoji/gift)
+    const reactBtn = await page.$('button[aria-label*="React"], .react-btn, .icon-react');
+    if (reactBtn) await reactBtn.click().catch(() => {});
+  }
+  if (args.action === 'treasure') {
+    // Simulate opening a treasure box
+    const treasureBtn = await page.$('button[aria-label*="Treasure"], .treasure-btn, .icon-treasure');
+    if (treasureBtn) await treasureBtn.click().catch(() => {});
+  }
+  if (args.action === 'goody') {
+    // Simulate opening a goody bag
+    const goodyBtn = await page.$('button[aria-label*="Goody"], .goody-btn, .icon-goody');
+    if (goodyBtn) await goodyBtn.click().catch(() => {});
   }
 
   // short random interactions

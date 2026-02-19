@@ -82,7 +82,6 @@ Notes
 - The `providers/indirect.js` file contains a Playwright-compatible provider implementation (safe reimplementation). If you need an exact port of the original provider, provide the original source and I will port it into the adapter.
 - Tests include CI-friendly `dryRun` paths so Playwright browsers are not required for all tests.
 
----
 
 ## Dashboard & Trace Persistence
 
@@ -110,7 +109,28 @@ See `bottok-dashboard.service` for a ready-to-use systemd unit:
 - Trace DB: `.bottok_traces.sqlite` (override with `--persistFile`)
 - Worker URL: `--workerUrl` for remote execution
 
----
+## Usage
 
+1. Start the dashboard:
+   ```sh
+   node core/cli.js --dashboard --port 30050
+   ```
+2. Open http://localhost:30050 in your browser.
+3. Enter a flow name (see below) and click Run.
+4. View live traces and results below.
+
+### Supported TikTok Simulation Flows
+
+You can simulate the following TikTok actions by entering the flow name in the dashboard:
+
+- `like` — Simulate liking a post or live
+- `share` — Simulate sharing a post
+- `comment` — Simulate commenting (default: "Nice video!")
+- `react` — Simulate sending a reaction (emoji/gift)
+- `treasure` — Simulate opening a Treasure Box
+- `goody` — Simulate opening a Goody Bag
+
+You can also pass extra options (e.g., comment text) via API or by customizing the flow.
+---
 MIT License
 

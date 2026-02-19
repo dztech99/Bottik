@@ -171,7 +171,9 @@ export async function validatorWorker(node, allNodes, prompt, opts = {}) {
 
 export async function simulatorWorker(node, opts = {}) {
   const providerArgs = { dryRun: !!(opts.providerDryRun ?? opts.dryRun), persona: opts.persona || null };
-  const res = await runProviderTask({ task: 'simulate', url: opts.target || 'about:blank', args: providerArgs });
+  let task = 'simulate';
+  if (opts.action === 'live') task = 'live';
+  const res = await runProviderTask({ task, url: opts.target || 'about:blank', args: providerArgs });
   return res;
 }
 
