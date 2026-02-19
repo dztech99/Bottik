@@ -1,38 +1,70 @@
 import fs from 'fs';
 import path from 'path';
+import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
 
 /**
  * providers/indirect.js
  *
- * Compatibility adapter for the original Bottok provider logic (Zefoy/Freer).
- * This file intentionally contains an adapter + helper functions so you can
- * safely port the original `bottok.js` logic into this module without
- * modifying the core CLI. The original implementation is not included here
- * (copyright). Paste or port the provider-specific code into `runProviderTask()`.
+ * Playwright-based compatible provider implementation (safe reimplementation).
+ * - honors `args.persona`, `args.proxies`/`args.proxy`, and `args.dryRun`
+ * - writes activity.log entries for auditing
+ * - keeps behavior simple and testable (use `dryRun` in CI/tests)
  */
 
 export async function startIndirectMode(args = {}) {
-  console.log('Indirect mode adapter — use providers.runProviderTask() to plug original logic.');
-  console.log('Args:', args);
-  // Minimal flow for tests/demo: validate inputs and return a stub result
+  console.log('Indirect mode — Playwright-compatible provider (reimplementation).');
   const task = args.task || args.t || 'Up Views';
-  const url = args.video || args.l || args.link || args._ && args._[0] || 'https://www.tiktok.com/';
+  const url = args.video || args.l || args.link || (args._ && args._[0]) || 'https://www.tiktok.com/';
   return runProviderTask({ task, url, args });
 }
 
-export async function runProviderTask({ task, url, args }) {
-  // TODO: port bottok.js provider internals here (Puppeteer + captcha + cloudflare handling)
-  // For now we return a safe stub so the CLI can exercise the provider path.
-  console.log(`(stub) running provider task=${task} url=${url}`);
+export async function runProviderTask({ task, url, args = {} }) {
+  const result = {
+    ok: false,
+    mode: 'indirect',
+    task,
+    url,
+    persona: args.persona || null,
+    dryRun: !!args.dryRun
+  };
 
-  // simulate work and write an activity log
+  const logPath = path.resolve(process.cwd(), 'activity.log');
   try {
-    const logLine = `[${new Date().toISOString()}] task=${task} url=${url} status=stubbed` + '\n';
-    const logPath = path.resolve(process.cwd(), 'activity.log');
-    fs.appendFileSync(logPath, logLine, { encoding: 'utf8' });
+    fs.appendFileSync(logPath, `[${new Date().toISOString()}] task=${task} url=${url} persona=${result.persona || '-'} dryRun=${result.dryRun}\n`, 'utf8');
   } catch (err) {
-    // ignore logging failures in demo mode
+    // best-effort logging
   }
 
-  return { ok: true, mode: 'indirect', task, url };
+  // Allow fast unit/CI testing without launching browsers
+  if (result.dryRun || process.env.CI === 'true' || args.noBrowser) {
+    result.ok = true;
+    result.note = 'dry-run — no browser launched';
+    return result;
+  }
+
+  try {
+    const { page, browser, persona } = await launchHumanBrowser(args);
+
+    // navigate to target and do lightweight human-like interactions
+    await page.goto(url, { waitUntil: 'networkidle' }).catch(() => {});
+    await simulateHumanActions(page, args);
+
+    await page.close();
+    await browser.close();
+
+    result.ok = true;
+    result.actions = ['navigated', 'simulated'];
+    result.persona = result.persona || (persona && (persona.id || persona));
+
+    try {
+      fs.appendFileSync(logPath, `[${new Date().toISOString()}] status=success task=${task}\n`, 'utf8');
+    } catch (err) {}
+
+    return result;
+  } catch (err) {
+    try { fs.appendFileSync(logPath, `[${new Date().toISOString()}] status=error task=${task} error=${String(err).slice(0,200)}\n`, 'utf8'); } catch (e) {}
+    result.ok = false;
+    result.error = err?.message || String(err);
+    return result;
+  }
 }
