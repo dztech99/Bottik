@@ -5,6 +5,7 @@ import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js'
 import { startAgentMode } from '../agents/tiktok-agent.js';
 import { startLangGraphMode } from '../agents/langgraph-agent.js';
 import { startOrchestratorMode } from '../agents/orchestrator.js';
+import { startDashboardMode } from '../agents/dashboard.js';
 
 const rawArgs = minimist(process.argv.slice(2));
 const args = { ...rawArgs };
@@ -56,6 +57,11 @@ async function main() {
     // run pipeline-style orchestrator (analyzer → web-scraper → validator → simulator → reporter)
     const out = await startOrchestratorMode(args);
     console.log('Orchestrator flow result:', out);
+  } else if (args.dashboard) {
+    const server = await startDashboardMode({ port: args.port || 3001 });
+    console.log(`Dashboard listening at http://${server.host}:${server.port}/`);
+    // keep process alive while dashboard runs
+    await new Promise(() => {});
   } else if (args.flow) {
     // allow `--flow-extended` / `--provider-dryrun` / `--require` flags to be passed through
     const out = await startLangGraphMode(args);

@@ -98,6 +98,7 @@ export async function startOrchestratorMode(args = {}) {
   try {
     const res = await orchestrator.runPipeline(prompt, opts);
     try { fs.appendFileSync(path.resolve(process.cwd(), 'activity.log'), `[${new Date().toISOString()}] orchestrator_result ok=${res.ok} nodes=${(res.trace?.nodes||[]).length}\n`); } catch (e) {}
+    try { const store = await import('./trace-store.js'); store.default.pushTrace({ source: 'orchestrator', prompt, trace: res.trace, ok: res.ok }); } catch (e) {}
     return res;
   } finally {
     orchestrator._stopProxyMonitor();
