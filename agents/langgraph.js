@@ -12,6 +12,13 @@ export async function runLangGraphFlow(prompt, opts = {}) {
     { id: 'report', role: 'reporter', description: 'Produce final report' }
   ];
 
+  // extended nodes (optional)
+  if (opts.extended) {
+    // place web-scraper after analyzer, validator after llm
+    nodes.splice(1, 0, { id: 'web-scraper', role: 'web-scraper', description: 'Fetch target URL for context' });
+    nodes.splice(3, 0, { id: 'validator', role: 'validator', description: 'Validate intermediate outputs' });
+  }
+
   // If Ollama requested and available, call it (unless dryRun)
   if (opts.llm === 'ollama') {
     if (opts.dryRun) {

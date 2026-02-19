@@ -46,6 +46,7 @@ async function main() {
   if (args.agent) {
     await startAgentMode(args);
   } else if (args.flow) {
+    // allow `--flow-extended` / `--provider-dryrun` / `--require` flags to be passed through
     const out = await startLangGraphMode(args);
     console.log('LangGraph flow result:', out);
   } else if (args.mode === 'direct' || args.human) {

@@ -48,9 +48,12 @@ LangGraph example (local)
 - Run a LangGraph-style flow (demo):
   `node core/cli.js --flow "audit user session" --llm ollama --dryRun`
 
+- Extended flow (web-scraper + validator):
+  `node core/cli.js --flow "audit user session" --flow-extended --dryRun --provider-dryRun --require example`
+
 - Example e2e (requires Ollama): see `examples/langgraph-e2e.md` for steps and test guidance.
 
-- Or call the agent directly in code: `startLangGraphMode({ flow: 'do X', llm: 'ollama', dryRun: true })`
+- Or call the agent directly in code: `startLangGraphMode({ flow: 'do X', llm: 'ollama', dryRun: true, extended: true })`
 
 Examples
 - Run agent with local Ollama (dry-run):
