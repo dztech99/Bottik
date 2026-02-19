@@ -59,3 +59,21 @@ test('web-scraper supports css selector on inline html', async () => {
   const ws = res.trace.nodes.find(n => n.role === 'web-scraper');
   expect(ws.result.selection).toBe('Hello CSS');
 });
+
+test('web-scraper supports css attribute extraction', async () => {
+  const html = 'inline:<html><body><a class="link" href="/go">Go</a></body></html>';
+  const res = await executeLangGraph('css attr test', { llm: 'none', dryRun: true, extended: true, target: html, selector: 'css:a.link@href' });
+  expect(res.ok).toBe(true);
+  const ws = res.trace.nodes.find(n => n.role === 'web-scraper');
+  expect(ws.result.selection).toBe('/go');
+});
+
+test('web-scraper supports jsonpath selector on inline json', async () => {
+  const js = 'inline:{"users":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]}';
+  const res = await executeLangGraph('jsonpath test', { llm: 'none', dryRun: true, extended: true, target: js, selector: 'jsonpath:$.users[?(@.id==2)].name' });
+  expect(res.ok).toBe(true);
+  const ws = res.trace.nodes.find(n => n.role === 'web-scraper');
+  expect(ws.result.contentType).toBe('json');
+  expect(ws.result.parsed.users[1].name).toBe('Bob');
+  expect(ws.result.selection).toBe('Bob');
+});

@@ -117,16 +117,36 @@ export async function executeLangGraph(prompt, opts = {}) {
           else if (sel.startsWith('json:')) {
             const path = sel.slice('json:'.length);
             node.result.selection = getAtPath(node.result.parsed, path);
+
+          } else if (sel.startsWith('jsonpath:')) {
+            // jsonpath:<expr> — use jsonpath-plus to query parsed JSON
+            const expr = sel.slice('jsonpath:'.length);
+            try {
+              const parsed = node.result.parsed;
+              if (!parsed) { node.result.selection = undefined; }
+              else {
+                const mod = await import('jsonpath-plus');
+                const JSONPath = mod.JSONPath ?? mod;
+                const out = JSONPath({ path: expr, json: parsed });
+                node.result.selection = Array.isArray(out) ? out[0] : out;
+              }
+            } catch (e) {
+              node.result.selection = undefined;
+              node.result.selectionError = String(e);
+            }
+
           } else if (sel.startsWith('css:')) {
-            // css:<selector> — use cheerio to query HTML content (lazy import)
-            const cssSel = sel.slice('css:'.length);
+            // css:<selector> or css:<selector>@attr — use cheerio to query HTML content (lazy import)
+            const cssSelRaw = sel.slice('css:'.length);
             const html = node.result.content || node.result.snippet || '';
+            const [cssSel, attr] = String(cssSelRaw).split('@');
             try {
               const mod = await import('cheerio');
               const cheerio = mod.default ?? mod;
               const $ = cheerio.load(html);
               const el = $(cssSel).first();
-              node.result.selection = el.length ? el.text().trim() : undefined;
+              if (!el || !el.length) node.result.selection = undefined;
+              else node.result.selection = attr ? el.attr(attr) : el.text().trim();
             } catch (e) {
               node.result.selection = undefined;
               node.result.selectionError = String(e);
