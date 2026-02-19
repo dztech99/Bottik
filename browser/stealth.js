@@ -1,5 +1,11 @@
-export function applyPageStealth(page, persona = {}) {
-  // navigator.webdriver -> false
+export function applyPageStealth(page, persona = {}, level = 'full') {
+  // expose selected stealth level for runtime tests
+  page.addInitScript((lvl) => { try { window.__bottok_stealth = lvl; } catch (e) {} }, level);
+
+  // if level === 'none' we only set the marker and skip shims
+  if (level === 'none') return;
+
+  // navigator.webdriver -> false (base shim)
   page.addInitScript(() => {
     Object.defineProperty(navigator, 'webdriver', { get: () => false });
   });
@@ -78,73 +84,75 @@ export function applyPageStealth(page, persona = {}) {
     } catch (e) {}
   });
 
-  // Function.prototype.toString masking (prevent detection of patched functions)
-  page.addInitScript(() => {
-    try {
-      const nativeToString = Function.prototype.toString;
-      const originalCall = nativeToString.bind(Function.prototype.toString);
-      Function.prototype.toString = function () {
-        try {
-          return originalCall(this);
-        } catch (e) {
-          return 'function () { [native code] }';
-        }
-      };
-    } catch (e) {}
-  });
-
-  // Canvas fingerprint noise: slightly alter returned image data
-  page.addInitScript(() => {
-    try {
-      const toDataURL = HTMLCanvasElement.prototype.toDataURL;
-      HTMLCanvasElement.prototype.toDataURL = function () {
-        try {
-          const ctx = this.getContext('2d');
-          if (ctx) {
-            const w = Math.max(1, Math.floor(this.width / 100));
-            const h = Math.max(1, Math.floor(this.height / 100));
-            const img = ctx.getImageData(0, 0, w, h);
-            img.data[0] = (img.data[0] + 1) % 255;
-            ctx.putImageData(img, 0, 0);
-          }
-        } catch (e) {}
-        return toDataURL.apply(this, arguments);
-      };
-    } catch (e) {}
-  });
-
-  // Font enumeration shim (document.fonts)
-  page.addInitScript(() => {
-    try {
-      if (!document.fonts) {
-        Object.defineProperty(document, 'fonts', {
-          get: () => ({ check: () => true, forEach: (cb) => { ['Arial', 'Times New Roman', 'Roboto'].forEach(cb); } })
-        });
-      }
-    } catch (e) {}
-  });
-
-  // Audio fingerprint mitigation (stub out audio processing where possible)
-  page.addInitScript(() => {
-    try {
-      const OrigCtx = window.OfflineAudioContext || window.AudioContext;
-      if (OrigCtx && OrigCtx.prototype && OrigCtx.prototype.createAnalyser) {
-        const origCreateAnalyser = OrigCtx.prototype.createAnalyser;
-        OrigCtx.prototype.createAnalyser = function () {
+  // apply deeper shims only for 'full' stealth
+  if (level === 'full') {
+    // Function.prototype.toString masking (prevent detection of patched functions)
+    page.addInitScript(() => {
+      try {
+        const nativeToString = Function.prototype.toString;
+        const originalCall = nativeToString.bind(Function.prototype.toString);
+        Function.prototype.toString = function () {
           try {
-            const analyser = origCreateAnalyser.apply(this, arguments);
-            analyser.getFloatFrequencyData = analyser.getFloatFrequencyData || function () { return new Float32Array(0); };
-            return analyser;
+            return originalCall(this);
           } catch (e) {
-            return origCreateAnalyser.apply(this, arguments);
+            return 'function () { [native code] }';
           }
         };
-      }
-    } catch (e) {}
-  });
+      } catch (e) {}
+    });
 
-  // apply viewport/userAgent via context when launching the browser (handled elsewhere)
+    // Canvas fingerprint noise: slightly alter returned image data
+    page.addInitScript(() => {
+      try {
+        const toDataURL = HTMLCanvasElement.prototype.toDataURL;
+        HTMLCanvasElement.prototype.toDataURL = function () {
+          try {
+            const ctx = this.getContext('2d');
+            if (ctx) {
+              const w = Math.max(1, Math.floor(this.width / 100));
+              const h = Math.max(1, Math.floor(this.height / 100));
+              const img = ctx.getImageData(0, 0, w, h);
+              img.data[0] = (img.data[0] + 1) % 255;
+              ctx.putImageData(img, 0, 0);
+            }
+          } catch (e) {}
+          return toDataURL.apply(this, arguments);
+        };
+      } catch (e) {}
+    });
+
+    // Font enumeration shim (document.fonts)
+    page.addInitScript(() => {
+      try {
+        if (!document.fonts) {
+          Object.defineProperty(document, 'fonts', {
+            get: () => ({ check: () => true, forEach: (cb) => { ['Arial', 'Times New Roman', 'Roboto'].forEach(cb); } })
+          });
+        }
+      } catch (e) {}
+    });
+
+    // Audio fingerprint mitigation (stub out audio processing where possible)
+    page.addInitScript(() => {
+      try {
+        const OrigCtx = window.OfflineAudioContext || window.AudioContext;
+        if (OrigCtx && OrigCtx.prototype && OrigCtx.prototype.createAnalyser) {
+          const origCreateAnalyser = OrigCtx.prototype.createAnalyser;
+          OrigCtx.prototype.createAnalyser = function () {
+            try {
+              const analyser = origCreateAnalyser.apply(this, arguments);
+              analyser.getFloatFrequencyData = analyser.getFloatFrequencyData || function () { return new Float32Array(0); };
+              return analyser;
+            } catch (e) {
+              return origCreateAnalyser.apply(this, arguments);
+            }
+          };
+        }
+      } catch (e) {}
+    });
+  }
 }
+
 
 export function contextOptionsFromPersona(persona = {}) {
   return {

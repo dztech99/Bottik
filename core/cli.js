@@ -13,6 +13,11 @@ if (rawArgs.proxyFile && !rawArgs.proxies) args.proxies = rawArgs.proxyFile;
 // expose persona flag directly
 if (rawArgs.persona) args.persona = rawArgs.persona;
 
+// stealth level: none | lite | full (default: full)
+const stealthRaw = rawArgs.stealth || rawArgs['stealth'] || rawArgs['stealth-level'] || rawArgs['stealthLevel'];
+args.stealth = stealthRaw ? String(stealthRaw).toLowerCase() : 'full';
+if (!['none','lite','full'].includes(args.stealth)) args.stealth = 'full';
+
 console.log('🚀 Bottok-AI (local) — lightweight demo');
 
 async function main() {
