@@ -4,7 +4,14 @@ import { startIndirectMode } from '../providers/indirect.js';
 import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
 import { startAgentMode } from '../agents/tiktok-agent.js';
 
-const args = minimist(process.argv.slice(2));
+const rawArgs = minimist(process.argv.slice(2));
+const args = { ...rawArgs };
+
+// normalize proxy-file / proxyFile -> proxies
+if (rawArgs['proxy-file'] && !rawArgs.proxies) args.proxies = rawArgs['proxy-file'];
+if (rawArgs.proxyFile && !rawArgs.proxies) args.proxies = rawArgs.proxyFile;
+// expose persona flag directly
+if (rawArgs.persona) args.persona = rawArgs.persona;
 
 console.log('🚀 Bottok-AI (local) — lightweight demo');
 
