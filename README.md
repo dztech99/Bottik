@@ -20,6 +20,11 @@ Flags
 - `--visible`               Launch browser in visible (non-headless) mode.
 - `--dryRun`                Run provider in dry-run mode (no browser launched) — useful for CI/tests.
 
+New: Personas & Stealth
+- Several additional personas were added (desktop_firefox_windows, android_pixel_6, ipad_safari_landscape).
+- `browser/stealth.js` now applies additional anti-fingerprinting shims: `navigator.deviceMemory`, `navigator.hardwareConcurrency`, `navigator.plugins`/`mimeTypes`, WebGL vendor spoofing and a basic `navigator.permissions` shim.
+- To add or tune personas, edit `config/personas.js` — set `hardwareConcurrency` and `deviceMemory` for more realistic fingerprints.
+
 Examples
 - Dry-run provider with persona:
   `node core/cli.js --persona mobile_safari_iphone --dryRun`
