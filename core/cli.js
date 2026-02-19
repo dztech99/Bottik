@@ -4,6 +4,7 @@ import { startIndirectMode } from '../providers/indirect.js';
 import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
 import { startAgentMode } from '../agents/tiktok-agent.js';
 import { startLangGraphMode } from '../agents/langgraph-agent.js';
+import { startOrchestratorMode } from '../agents/orchestrator.js';
 
 const rawArgs = minimist(process.argv.slice(2));
 const args = { ...rawArgs };
@@ -40,11 +41,21 @@ if (args.stealthPreset && STEALTH_PRESETS[args.stealthPreset]) {
   if (!stealthDisableRaw || stealthDisableRaw === '') args.stealthDisable = p.stealthDisable.slice();
 }
 
+// rotate-fingerprint / fingerprint alias
+if (rawArgs['rotate-fingerprint'] || rawArgs.rotateFingerprint) args.rotateFingerprint = true;
+if (rawArgs.fingerprint && !rawArgs.persona) args.persona = rawArgs.fingerprint;
+// providerDryRun: run provider simulation even when other steps may call network
+args.providerDryRun = !!(rawArgs['provider-dryrun'] || rawArgs.providerDryRun || false);
+
 console.log('🚀 Bottok-AI (local) — lightweight demo');
 
 async function main() {
   if (args.agent) {
     await startAgentMode(args);
+  } else if (args.agentic) {
+    // run pipeline-style orchestrator (analyzer → web-scraper → validator → simulator → reporter)
+    const out = await startOrchestratorMode(args);
+    console.log('Orchestrator flow result:', out);
   } else if (args.flow) {
     // allow `--flow-extended` / `--provider-dryrun` / `--require` flags to be passed through
     const out = await startLangGraphMode(args);
