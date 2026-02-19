@@ -26,6 +26,17 @@ New: Deeper stealth
 - Added canvas-noise, `Function.prototype.toString` masking, font enumeration stubs and audio fingerprint mitigations. These are optional shims applied by `browser/stealth.js` and are intended for defensive, testable anti-fingerprinting only.
 
 New: Personas & Stealth
+
+LLM integration (local)
+- `--llm ollama` will instruct the agent to use a local Ollama instance when available.
+- Use `--dryRun` in tests/CI to avoid calling the local LLM.
+- Ollama URL can be set with `OLLAMA_URL` environment variable (default: `http://127.0.0.1:11434`).
+
+Examples
+- Run agent with local Ollama (dry-run):
+  `node core/cli.js --agent "summarize this" --llm ollama --dryRun`
+
+
 - Several additional personas were added (desktop_firefox_windows, android_pixel_6, ipad_safari_landscape).
 - `browser/stealth.js` now applies additional anti-fingerprinting shims: `navigator.deviceMemory`, `navigator.hardwareConcurrency`, `navigator.plugins`/`mimeTypes`, WebGL vendor spoofing and a basic `navigator.permissions` shim.
 - To add or tune personas, edit `config/personas.js` — set `hardwareConcurrency` and `deviceMemory` for more realistic fingerprints.
