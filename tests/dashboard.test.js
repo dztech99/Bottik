@@ -21,5 +21,19 @@ test('dashboard exposes traces and shows orchestrator trace', async () => {
   expect(t.source).toBe('orchestrator');
   expect(t.trace).toBeDefined();
 
+  // test websocket live update
+  const WebSocket = (await import('ws')).default;
+  const ws = new WebSocket(`ws://${server.host}:${server.port}/live`);
+  let msgReceived = false;
+  ws.on('message', (d) => { try { const p = JSON.parse(String(d)); if (p && p.ts) msgReceived = true; } catch(e){} });
+  // push another orchestrator run (should broadcast)
+  const r2 = await startOrchestratorMode({ flow: 'audit demo 2', llm: 'none', dryRun: true, extended: true, providerDryRun: true });
+  expect(r2.ok).toBe(true);
+
+  // wait briefly for ws message
+  await new Promise(res => setTimeout(res, 250));
+  ws.close();
+  expect(msgReceived).toBe(true);
+
   server.close();
 });
