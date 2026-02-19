@@ -112,13 +112,19 @@ export async function startOrchestratorMode(args = {}) {
     try { fs.appendFileSync(path.resolve(process.cwd(), 'activity.log'), `[${new Date().toISOString()}] orchestrator_result ok=${res.ok} nodes=${(res.trace?.nodes||[]).length}\n`); } catch (e) {}
 
     // push into SQLite for cross-process visibility
+    let db;
     try {
       const dbPath = args.persistFile || process.env.BOTTOK_TRACES_FILE || path.resolve(process.cwd(), '.bottok_traces.sqlite');
-      const db = await openTraceDB(dbPath);
+      db = await openTraceDB(dbPath);
       const rec = { id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, ts: Date.now(), source: 'orchestrator', prompt, trace: res.trace, ok: res.ok };
       await insertTrace(db, rec);
       await db.close();
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      if (db) {
+        try { await db.close(); } catch (closeErr) { console.error('Error closing DB:', closeErr); }
+      }
+      console.error('SQLite DB error in orchestrator:', e);
+    }
 
     return res;
   } finally {

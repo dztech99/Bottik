@@ -1,5 +1,900 @@
 [
   {
+    "id": "1771485741682-6mmjzh",
+    "ts": 1771485741682,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "ollama-dryRun"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "tablet_android",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "ollama-dryRun"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "tablet_android",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771485730421-xlip9t",
+    "ts": 1771485730421,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "llm-simulated"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "australia_iphone",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "llm-simulated"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "australia_iphone",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report",
+                "result": "report-ready"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771485546319-9mximr",
+    "ts": 1771485546319,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "ollama-dryRun"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "mobile_safari_iphone",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "ollama-dryRun"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "mobile_safari_iphone",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771485539286-mcny7e",
+    "ts": 1771485539286,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "llm-simulated"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "ipad_safari_landscape",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "llm-simulated"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "ipad_safari_landscape",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report",
+                "result": "report-ready"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771484816015-cidwit",
+    "ts": 1771484816015,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "ollama-dryRun"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "tablet_android",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "ollama-dryRun"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "tablet_android",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771484803426-2v5oib",
+    "ts": 1771484803426,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "llm-simulated"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "germany_desktop",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "llm-simulated"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "germany_desktop",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report",
+                "result": "report-ready"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771484509067-q2cywn",
+    "ts": 1771484509067,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "ollama-dryRun"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "ipad_safari_landscape",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "ollama-dryRun"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "ipad_safari_landscape",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771484502545-sbhbqx",
+    "ts": 1771484502545,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "llm-simulated"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "android_pixel_6",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "llm-simulated"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "android_pixel_6",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report",
+                "result": "report-ready"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771484318818-5jixkk",
+    "ts": 1771484318818,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "ollama-dryRun"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "ipad_safari_landscape",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "ollama-dryRun"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "ipad_safari_landscape",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
+    "id": "1771484312400-j946vk",
+    "ts": 1771484312400,
+    "source": "langgraph",
+    "prompt": "analyze X",
+    "trace": {
+      "plan": [
+        "analyze",
+        "call_llm",
+        "simulate",
+        "report"
+      ],
+      "nodes": [
+        {
+          "id": "analyze",
+          "role": "analyzer",
+          "result": {
+            "keywords": [
+              "analyze"
+            ],
+            "wordCount": 1
+          }
+        },
+        {
+          "id": "call_llm",
+          "role": "llm",
+          "result": "llm-simulated"
+        },
+        {
+          "id": "simulate",
+          "role": "simulator",
+          "result": {
+            "ok": true,
+            "mode": "indirect",
+            "task": "simulate",
+            "url": "about:blank",
+            "persona": "brazil_android",
+            "dryRun": false,
+            "actions": [
+              "navigated",
+              "simulated"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "role": "reporter",
+          "result": {
+            "summary": "Report for analyze X",
+            "nodes": [
+              {
+                "id": "analyze",
+                "result": {
+                  "keywords": [
+                    "analyze"
+                  ],
+                  "wordCount": 1
+                }
+              },
+              {
+                "id": "call_llm",
+                "result": "llm-simulated"
+              },
+              {
+                "id": "simulate",
+                "result": {
+                  "ok": true,
+                  "mode": "indirect",
+                  "task": "simulate",
+                  "url": "about:blank",
+                  "persona": "brazil_android",
+                  "dryRun": false,
+                  "actions": [
+                    "navigated",
+                    "simulated"
+                  ]
+                }
+              },
+              {
+                "id": "report",
+                "result": "report-ready"
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Plan for: analyze X"
+    },
+    "ok": true
+  },
+  {
     "id": "1771483110615-45vijb",
     "ts": 1771483110615,
     "source": "langgraph",

@@ -1,5 +1,4 @@
 // import fs from 'fs';
-  } catch (e) {}
 import http from 'http';
 import url from 'url';
 import fs from 'fs';
@@ -102,12 +101,17 @@ export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = n
     if (p.pathname === '/' || p.pathname === '/index.html') return html(res, UI);
     if (p.pathname === '/traces') {
       const limit = parseInt(p.query.limit || '50', 10) || 50;
+      let db;
       try {
-        const db = await openTraceDB(dbPath);
+        db = await openTraceDB(dbPath);
         const traces = await getRecentTraces(db, limit);
         await db.close();
         return json(res, traces);
       } catch (e) {
+        if (db) {
+          try { await db.close(); } catch (closeErr) { /* log close error */ console.error('Error closing DB:', closeErr); }
+        }
+        console.error('SQLite DB error in /traces:', e);
         return json(res, { error: 'db_error', detail: String(e) }, 500);
       }
     }
@@ -139,9 +143,22 @@ export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = n
 
   // attach WebSocket server to same HTTP server
   const wss = new WebSocketServer({ noServer: true });
+  // Keep track of all connected WebSocket clients
+  const wsClients = new Set();
   wss.on('connection', (socket) => {
-    // send recent traces once connected
-    socket.send(JSON.stringify({ type: 'recent', traces: traceStore.getTraces({ limit: 20 }) }));
+    wsClients.add(socket);
+    // send recent traces once connected (from SQLite)
+    (async () => {
+      try {
+        const db = await openTraceDB(dbPath);
+        const traces = await getRecentTraces(db, 20);
+        await db.close();
+        socket.send(JSON.stringify({ type: 'recent', traces }));
+      } catch (e) {
+        socket.send(JSON.stringify({ type: 'error', error: 'db_error', detail: String(e) }));
+      }
+    })();
+    socket.on('close', () => wsClients.delete(socket));
   });
 
   server.on('upgrade', (req, socket, head) => {
@@ -158,9 +175,38 @@ export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = n
     wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
   });
 
-  // broadcast on new trace
-  // SQLite: no in-memory push, but could poll for new traces if needed
-  // For now, dashboard UI will poll /traces endpoint for updates
+  // Broadcast a new trace to all connected WebSocket clients
+  async function broadcastNewTrace(trace) {
+    const msg = JSON.stringify(trace);
+    for (const ws of wsClients) {
+      if (ws.readyState === ws.OPEN) {
+        try { ws.send(msg); } catch (e) { /* ignore */ }
+      }
+    }
+  }
+
+  // Patch POST /run endpoint to broadcast new trace after insertion
+  // (Monkey-patch startOrchestratorMode to intercept trace insertion)
+  const origImport = globalThis.__importOrchestrator || (async (...args) => await import('./orchestrator.js'));
+  globalThis.__importOrchestrator = async (...args) => {
+    const mod = await origImport(...args);
+    if (!mod.__wsPatched) {
+      const origStart = mod.startOrchestratorMode;
+      mod.startOrchestratorMode = async function patchedStartOrchestratorMode(opts) {
+        const res = await origStart.call(this, opts);
+        // After orchestrator runs, get the latest trace and broadcast
+        try {
+          const db = await openTraceDB(dbPath);
+          const traces = await getRecentTraces(db, 1);
+          await db.close();
+          if (traces && traces[0]) await broadcastNewTrace(traces[0]);
+        } catch (e) { /* ignore */ }
+        return res;
+      };
+      mod.__wsPatched = true;
+    }
+    return mod;
+  };
 
   // optional persistence (default to .bottok_traces.json when not provided)
   // SQLite: no file watcher needed
@@ -168,7 +214,7 @@ export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = n
   return new Promise((resolve, reject) => {
     server.listen(port, host, () => {
       const assigned = server.address();
-      resolve({ server, host: assigned.address, port: assigned.port, wss, close: () => { traceStore.removeListener('push', onPush); wss.close(); server.close(); if (watcher) try { watcher.close(); } catch(e){} } });
+      resolve({ server, host: assigned.address, port: assigned.port, wss, close: () => { wss.close(); server.close(); } });
     });
     server.on('error', reject);
   });

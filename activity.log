@@ -1,11 +1,11 @@
-[2026-02-19T06:38:08.002Z] task=test url=https://example.com persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T06:38:08.203Z] task=simulate url=inline:<html><body><h1 class="hero">Hello CSS</h1></body></html> persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T06:38:08.230Z] task=simulate url=inline:<html><body><a class="link" href="/go">Go</a></body></html> persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T06:38:08.261Z] task=simulate url=inline:{"users":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]} persona=- stealth=full stealthDisable= dryRun=true
-[2026-02-19T06:38:08.416Z] task=Up Views url=https://www.tiktok.com/ persona=mobile_safari_iphone stealth=lite stealthDisable=canvas;toString dryRun=true
-[2026-02-19T06:38:20.097Z] status=success task=simulate
-[2026-02-19T06:38:20.098Z] langgraph_result ok=true nodes=4
-[2026-02-19T06:38:20.131Z] langgraph_start prompt=analyze X llm=ollama dryRun=true
-[2026-02-19T06:38:20.134Z] task=simulate url=about:blank persona=- stealth=full stealthDisable= dryRun=false
-[2026-02-19T06:38:30.614Z] status=success task=simulate
-[2026-02-19T06:38:30.614Z] langgraph_result ok=true nodes=4
+[2026-02-19T07:22:04.830Z] task=test url=https://example.com persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T07:22:04.946Z] task=simulate url=inline:<html><body><h1 class="hero">Hello CSS</h1></body></html> persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T07:22:04.958Z] task=Up Views url=https://www.tiktok.com/ persona=mobile_safari_iphone stealth=lite stealthDisable=canvas;toString dryRun=true
+[2026-02-19T07:22:04.990Z] task=simulate url=inline:<html><body><a class="link" href="/go">Go</a></body></html> persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T07:22:05.035Z] task=simulate url=inline:{"users":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]} persona=- stealth=full stealthDisable= dryRun=true
+[2026-02-19T07:22:10.416Z] status=success task=simulate
+[2026-02-19T07:22:10.416Z] langgraph_result ok=true nodes=4
+[2026-02-19T07:22:10.454Z] langgraph_start prompt=analyze X llm=ollama dryRun=true
+[2026-02-19T07:22:10.461Z] task=simulate url=about:blank persona=- stealth=full stealthDisable= dryRun=false
+[2026-02-19T07:22:21.680Z] status=success task=simulate
+[2026-02-19T07:22:21.680Z] langgraph_result ok=true nodes=4
