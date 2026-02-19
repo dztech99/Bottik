@@ -20,6 +20,9 @@ Flags
 - `--visible`               Launch browser in visible (non-headless) mode.
 - `--dryRun`                Run provider in dry-run mode (no browser launched) — useful for CI/tests.
 - `--no-jitter`             Disable session fingerprint jitter (useful for deterministic runs/tests)
+- `--rotate-fingerprint`    Rotate persona selection (persistent round-robin across runs)
+- `--fingerprint <id>`      Alias for `--persona` to set a specific fingerprint/persona
+- `--provider-dryRun`       Run provider steps in simulation mode even if other steps may call network
 - `--stealth-disable <list>` Disable specific stealth shims (comma-separated). Valid values include: `canvas`, `toString`, `fonts`, `audio`, `webgl`, `connection`, `screen`, `plugins`, `languages`, `mediaDevices`.
 
 New: Deeper stealth
@@ -50,6 +53,10 @@ LangGraph example (local)
 
 - Extended flow (web-scraper + validator):
   `node core/cli.js --flow "audit user session" --flow-extended --dryRun --provider-dryRun --require example`
+
+- Selector options for the web-scraper node:
+  - `selector: "css:<selector>"` — extract text using CSS selectors (uses cheerio for HTML parsing)
+  - `selector: "json:<path>"` — extract value from parsed JSON using dot-path (e.g. `json:user.id`)
 
 - Example e2e (requires Ollama): see `examples/langgraph-e2e.md` for steps and test guidance.
 
