@@ -4,6 +4,23 @@ import { startIndirectMode } from '../providers/indirect.js';
 import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
 import { startAgentMode } from '../agents/tiktok-agent.js';
 import { startLangGraphMode } from '../agents/langgraph-agent.js';
+import { execSync } from 'child_process';
+
+function findProcessOnPort(port) {
+  try {
+    const ss = execSync(`ss -ltnp | grep :${port}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (ss) return ss.split('\n').map(l => l.trim()).join(' | ');
+  } catch (e) {
+    // fallback to lsof
+    try {
+      const lf = execSync(`lsof -i :${port} -sTCP:LISTEN -P -n`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      if (lf) return lf.split('\n').slice(1).map(l => l.trim()).join(' | ');
+    } catch (er) {
+      return null;
+    }
+  }
+  return null;
+}
 import { startOrchestratorMode } from '../agents/orchestrator.js';
 import { startDashboardMode } from '../agents/dashboard.js';
 
@@ -60,10 +77,24 @@ async function main() {
   } else if (args.dashboard) {
     // allow explicit 0 (ephemeral) port — treat only undefined as missing
     const port = (typeof args.port !== 'undefined') ? Number(args.port) : 3001;
-    const server = await startDashboardMode({ port });
-    console.log(`Dashboard listening at http://${server.host}:${server.port}/`);
-    // keep process alive while dashboard runs
-    await new Promise(() => {});
+    try {
+      const server = await startDashboardMode({ port });
+      console.log(`Dashboard listening at http://${server.host}:${server.port}/`);
+      // keep process alive while dashboard runs
+      await new Promise(() => {});
+    } catch (err) {
+      if (err && err.code === 'EADDRINUSE') {
+        console.error(`⚠️  Port ${port} is already in use.`);
+        const info = findProcessOnPort(port);
+        if (info) console.error(`Process using port ${port}: ${info}`);
+        console.error('Suggestions:');
+        console.error('  • Try an ephemeral port: `--port 0` (OS-assigned free port)');
+        console.error('  • Or choose a different port: `--port ' + (port + 1) + '`');
+        console.error('  • If you want to free the port, stop the process reported above.');
+        process.exit(1);
+      }
+      throw err;
+    }
   } else if (args.flow) {
     // allow `--flow-extended` / `--provider-dryrun` / `--require` flags to be passed through
     const out = await startLangGraphMode(args);
