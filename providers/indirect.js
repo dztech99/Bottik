@@ -31,7 +31,8 @@ export async function runProviderTask({ task, url, args = {} }) {
   const logPath = path.resolve(process.cwd(), 'activity.log');
   try {
     const stealthLog = args.stealth || args['stealth'] || 'full';
-    fs.appendFileSync(logPath, `[${new Date().toISOString()}] task=${task} url=${url} persona=${result.persona || '-'} stealth=${stealthLog} dryRun=${result.dryRun}\n`, 'utf8');
+    const disabled = args.stealthDisable || args['stealth-disable'] || [];
+    fs.appendFileSync(logPath, `[${new Date().toISOString()}] task=${task} url=${url} persona=${result.persona || '-'} stealth=${stealthLog} stealthDisable=${Array.isArray(disabled)?disabled.join(';'):disabled} dryRun=${result.dryRun}\n`, 'utf8');
   } catch (err) {
     // best-effort logging
   }

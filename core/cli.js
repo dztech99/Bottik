@@ -18,6 +18,10 @@ const stealthRaw = rawArgs.stealth || rawArgs['stealth'] || rawArgs['stealth-lev
 args.stealth = stealthRaw ? String(stealthRaw).toLowerCase() : 'full';
 if (!['none','lite','full'].includes(args.stealth)) args.stealth = 'full';
 
+// stealth-disable: comma-separated list of shims to disable (e.g. canvas,toString,fonts)
+const stealthDisableRaw = rawArgs['stealth-disable'] || rawArgs.stealthDisable || rawArgs['disable-shims'] || rawArgs.disableShims;
+args.stealthDisable = stealthDisableRaw ? String(stealthDisableRaw).split(',').map(s => s.trim()).filter(Boolean) : [];
+
 console.log('🚀 Bottok-AI (local) — lightweight demo');
 
 async function main() {

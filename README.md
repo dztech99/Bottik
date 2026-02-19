@@ -20,6 +20,7 @@ Flags
 - `--visible`               Launch browser in visible (non-headless) mode.
 - `--dryRun`                Run provider in dry-run mode (no browser launched) — useful for CI/tests.
 - `--no-jitter`             Disable session fingerprint jitter (useful for deterministic runs/tests)
+- `--stealth-disable <list>` Disable specific stealth shims (comma-separated). Valid values include: `canvas`, `toString`, `fonts`, `audio`, `webgl`, `connection`, `screen`, `plugins`, `languages`, `mediaDevices`.
 
 New: Deeper stealth
 - Added canvas-noise, `Function.prototype.toString` masking, font enumeration stubs and audio fingerprint mitigations. These are optional shims applied by `browser/stealth.js` and are intended for defensive, testable anti-fingerprinting only.
