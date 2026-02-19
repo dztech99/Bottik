@@ -1,16 +1,44 @@
-// Minimal LangGraph-style flow stub — replace with real LangGraph integration later
+// LangGraph-style flow (enhanced stub)
 import { generate as ollamaGenerate, isOllamaAvailable } from './ollama.js';
 
 export async function runLangGraphFlow(prompt, opts = {}) {
-  // For now: if Ollama requested and available, call it; otherwise return a deterministic plan
-  if (opts.llm === 'ollama' && !opts.dryRun) {
+  const summary = `Plan for: ${String(prompt).slice(0,120)}`;
+
+  // node-level plan (simple graph of steps)
+  const nodes = [
+    { id: 'analyze', role: 'analyzer', description: `Analyze input: ${String(prompt).slice(0,80)}` },
+    { id: 'call_llm', role: 'llm', description: 'Generate guidance / instructions' },
+    { id: 'simulate', role: 'simulator', description: 'Simulate actions' },
+    { id: 'report', role: 'reporter', description: 'Produce final report' }
+  ];
+
+  // If Ollama requested and available, call it (unless dryRun)
+  if (opts.llm === 'ollama') {
+    if (opts.dryRun) {
+      nodes[1].result = 'ollama-dryRun';
+      return { plan: nodes.map(n => n.id), nodes, summary, llm: nodes[1].result };
+    }
+
     const ok = await isOllamaAvailable();
     if (ok) {
       const out = await ollamaGenerate(prompt, { model: opts.model || 'llama2' });
-      return { plan: ['llm:call'], llm: String(out).slice(0,200) };
+      nodes[1].result = String(out).slice(0,400);
+      // continue with simulated downstream steps
+      nodes[0].result = 'analysis-complete';
+      nodes[2].result = 'simulation-complete';
+      nodes[3].result = 'report-ready';
+      return { plan: nodes.map(n => n.id), nodes, summary, llm: nodes[1].result };
     }
-    return { plan: ['fallback-local'], note: 'ollama-not-available' };
+
+    nodes[1].result = 'ollama-not-available';
+    return { plan: nodes.map(n => n.id), nodes, summary, note: 'ollama-not-available' };
   }
-  // deterministic sample plan
-  return { plan: ['analyze', 'simulate', 'report'], summary: `simulated plan for: ${String(prompt).slice(0,80)}` };
+
+  // default deterministic local plan
+  nodes[0].result = 'analysis-complete';
+  nodes[1].result = 'llm-simulated';
+  nodes[2].result = 'simulation-complete';
+  nodes[3].result = 'report-ready';
+
+  return { plan: nodes.map(n => n.id), nodes, summary };
 }
