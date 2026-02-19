@@ -8,6 +8,7 @@
     "start": "node core/cli.js",
     "dev": "node --watch core/cli.js",
     "test": "npx playwright test tests --reporter=list",
+    "lint": "eslint . --ext .js",
     "install-playwright": "npx playwright install --with-deps"
   },
   "keywords": ["bottok", "tiktok", "automation", "playwright", "agent"],
@@ -24,6 +25,7 @@
     "playwright": "^1.50.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.50.0"
+    "@playwright/test": "^1.50.0",
+    "eslint": "^8.50.0"
   }
 }

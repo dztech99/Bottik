@@ -77,9 +77,10 @@ export async function launchHumanBrowser(args = {}) {
   const context = await browser.newContext(ctxOpts);
   const page = await context.newPage();
 
-  // apply stealth JS hooks (respect runtime stealth level)
+  // apply stealth JS hooks (respect runtime stealth level + disabled shims)
   const stealthLevel = args.stealth || 'full';
-  await applyPageStealth(page, sessionPersona, stealthLevel);
+  const disabledShims = args.stealthDisable || args['stealth-disable'] || [];
+  await applyPageStealth(page, sessionPersona, stealthLevel, disabledShims);
 
   return { page, browser, persona: sessionPersona };
 }

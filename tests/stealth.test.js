@@ -89,6 +89,36 @@ if (canRunBrowserTest) {
     expect(noneMarker).toBe('none');
   });
 
+  test('applyPageStealth respects disabled shims (canvas/toString)', async () => {
+    const personaId = 'desktop_chrome_1';
+
+    const full = await launchHumanBrowser({ visible: false, persona: personaId, stealth: 'full' });
+    const canvasFull = await full.page.evaluate(() => {
+      const c = document.createElement('canvas');
+      c.width = 300; c.height = 150;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ff0000'; ctx.fillRect(0,0,10,10);
+      return c.toDataURL().slice(0,30);
+    });
+    await full.browser.close();
+
+    const disabled = await launchHumanBrowser({ visible: false, persona: personaId, stealth: 'full', stealthDisable: 'canvas,toString' });
+    const canvasDisabled = await disabled.page.evaluate(() => {
+      const c = document.createElement('canvas');
+      c.width = 300; c.height = 150;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ff0000'; ctx.fillRect(0,0,10,10);
+      return c.toDataURL().slice(0,30);
+    });
+    const disabledList = await disabled.page.evaluate(() => window.__bottok_disabled_shims || []);
+    await disabled.browser.close();
+
+    // when canvas shim is disabled the canvas output should differ from full (which injects noise),
+    // and the disabled marker should be set
+    expect(canvasFull).not.toBe(canvasDisabled);
+    expect(disabledList).toContain('canvas');
+  });
+
   test('launchHumanBrowser applies session jitter to userAgent when enabled', async () => {
     // ensure jitter changes UA deterministically in implementation
     const personaId = 'desktop_chrome_1';
