@@ -44,6 +44,12 @@ LLM integration (local)
 - Use `--dryRun` in tests/CI to avoid calling the local LLM.
 - Ollama URL can be set with `OLLAMA_URL` environment variable (default: `http://127.0.0.1:11434`).
 
+LangGraph example (local)
+- Run a LangGraph-style flow (demo):
+  `node core/cli.js --flow "audit user session" --llm ollama --dryRun`
+
+- Or call the agent directly in code: `startLangGraphMode({ flow: 'do X', llm: 'ollama', dryRun: true })`
+
 Examples
 - Run agent with local Ollama (dry-run):
   `node core/cli.js --agent "summarize this" --llm ollama --dryRun`

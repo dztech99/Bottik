@@ -3,6 +3,7 @@ import config from '../config/default.js';
 import { startIndirectMode } from '../providers/indirect.js';
 import { launchHumanBrowser, simulateHumanActions } from '../human/simulator.js';
 import { startAgentMode } from '../agents/tiktok-agent.js';
+import { startLangGraphMode } from '../agents/langgraph-agent.js';
 
 const rawArgs = minimist(process.argv.slice(2));
 const args = { ...rawArgs };
@@ -44,6 +45,9 @@ console.log('🚀 Bottok-AI (local) — lightweight demo');
 async function main() {
   if (args.agent) {
     await startAgentMode(args);
+  } else if (args.flow) {
+    const out = await startLangGraphMode(args);
+    console.log('LangGraph flow result:', out);
   } else if (args.mode === 'direct' || args.human) {
     const { page, browser } = await launchHumanBrowser(args);
     await simulateHumanActions(page, args);
