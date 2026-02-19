@@ -58,7 +58,7 @@ const UI = `
 </html>
 `;
 
-export function startDashboardMode({ host = '127.0.0.1', port = 3001, token = null, persistFile = null } = {}) {
+export function startDashboardMode({ host = '127.0.0.1', port = 30050, token = null, persistFile = null } = {}) {
   const server = http.createServer((req, res) => {
     const p = url.parse(req.url, true);
 

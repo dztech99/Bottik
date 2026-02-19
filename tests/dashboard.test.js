@@ -26,12 +26,16 @@ test('dashboard exposes traces and shows orchestrator trace', async () => {
   const ws = new WebSocket(`ws://${server.host}:${server.port}/live`);
   let msgReceived = false;
   ws.on('message', (d) => { try { const p = JSON.parse(String(d)); if (p && p.ts) msgReceived = true; } catch(e){} });
+
+  // wait for websocket to open before triggering broadcast to avoid race
+  await new Promise((res) => { ws.on('open', res); ws.on('error', res); setTimeout(res, 500); });
+
   // push another orchestrator run (should broadcast)
   const r2 = await startOrchestratorMode({ flow: 'audit demo 2', llm: 'none', dryRun: true, extended: true, providerDryRun: true });
   expect(r2.ok).toBe(true);
 
   // wait briefly for ws message
-  await new Promise(res => setTimeout(res, 250));
+  await new Promise(res => setTimeout(res, 500));
   ws.close();
   expect(msgReceived).toBe(true);
 

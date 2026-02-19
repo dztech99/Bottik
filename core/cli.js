@@ -76,7 +76,7 @@ async function main() {
     console.log('Orchestrator flow result:', out);
   } else if (args.dashboard) {
     // allow explicit 0 (ephemeral) port — treat only undefined as missing
-    const port = (typeof args.port !== 'undefined') ? Number(args.port) : 3001;
+    const port = (typeof args.port !== 'undefined') ? Number(args.port) : 30050;
     try {
       const server = await startDashboardMode({ port });
       console.log(`Dashboard listening at http://${server.host}:${server.port}/`);
