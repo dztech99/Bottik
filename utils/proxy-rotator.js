@@ -33,6 +33,28 @@ class ProxyRotator {
     return null;
   }
 
+  async healthCheck(proxy, timeoutMs = 2000) {
+    // proxy format: [user:pass@]host:port
+    try {
+      const target = String(proxy).trim();
+      const parts = target.split('@');
+      const hostPort = parts.length === 1 ? parts[0] : parts[1];
+      const [host, portStr] = hostPort.split(':');
+      const port = parseInt(portStr || '80', 10) || 80;
+      const net = await import('net');
+      return await new Promise((resolve) => {
+        const socket = net.createConnection({ host, port, timeout: timeoutMs }, () => {
+          socket.destroy();
+          resolve(true);
+        });
+        socket.on('error', () => { try { socket.destroy(); } catch (e) {} resolve(false); });
+        socket.on('timeout', () => { try { socket.destroy(); } catch (e) {} resolve(false); });
+      });
+    } catch (e) {
+      return false;
+    }
+  }
+
   markFailed(proxy) {
     const rec = this.failed.get(proxy) || { count: 0, at: 0 };
     rec.count = (rec.count || 0) + 1;
@@ -42,6 +64,16 @@ class ProxyRotator {
 
   markHealthy(proxy) {
     this.failed.delete(proxy);
+  }
+
+  async checkAll(timeoutMs = 1500) {
+    const results = {};
+    for (const p of this.proxies) {
+      const ok = await this.healthCheck(p, timeoutMs);
+      results[p] = ok;
+      if (!ok) this.markFailed(p); else this.markHealthy(p);
+    }
+    return results;
   }
 }
 
